@@ -1,6 +1,8 @@
 import re
 import json
 import streamlit as st
+import time
+import uuid
 from detector import sanitize
 from presidio_analyzer import AnalyzerEngine
 from presidio_analyzer.nlp_engine import NlpEngineProvider
@@ -15,36 +17,24 @@ st.set_page_config(
 # Temporary session state
 # --------------------------------------------------
 
-
-# --------------------------------------------------
-# Temporary session state and inactivity timeout
-# --------------------------------------------------
+import time
+import uuid
 
 SESSION_TIMEOUT_SECONDS = 15 * 60  # 15 minutes
 
 if "session_id" not in st.session_state:
-    st.session_state["session_id"] = str(uuid.uuid4())
-    st.session_state["last_activity"] = time.time()
+    st.session_state.session_id = str(uuid.uuid4())
+    st.session_state.last_activity = time.time()
+    st.session_state.scan_result = None
+    st.session_state.raw_logs = ""
 
-# Check whether the previous activity was over 15 minutes ago.
-if time.time() - st.session_state["last_activity"] > SESSION_TIMEOUT_SECONDS:
-    keys_to_clear = [
-        "raw_logs_input",
-        "raw_logs",
-        "scan_result",
-        "findings",
-        "sanitized",
-        "residuals",
-    ]
+# Expire inactive session data.
+if time.time() - st.session_state.last_activity > SESSION_TIMEOUT_SECONDS:
+    st.session_state.scan_result = None
+    st.session_state.raw_logs = ""
+    st.session_state.session_id = str(uuid.uuid4())
 
-    for key in keys_to_clear:
-        st.session_state.pop(key, None)
-
-    st.session_state["session_id"] = str(uuid.uuid4())
-
-# Update activity time for this app run.
-st.session_state["last_activity"] = time.time()
-
+st.session_state.last_activity = time.time()
 
 
 st.title("🔐 SafeTrace")
