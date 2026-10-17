@@ -1,0 +1,4 @@
+streamlit
+presidio-analyzer
+spacy
+pytest

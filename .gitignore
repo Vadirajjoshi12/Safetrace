@@ -1,0 +1,10 @@
+.venv/
+.venv312/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+*.log
+.DS_Store
